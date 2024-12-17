@@ -25,6 +25,10 @@ void error_callback(int error, const char* description)
 	fprintf(stderr, "Error: %s\n", description);
 }
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+	glViewport(0, 0, width, height);
+}
+
 
 int initOpenGL(RenderState* renderState) {
 
@@ -49,6 +53,7 @@ int initOpenGL(RenderState* renderState) {
 	glfwMakeContextCurrent(renderState->window);
 
 	glfwSetKeyCallback(renderState->window, key_callback);
+	glfwSetFramebufferSizeCallback(renderState->window, framebuffer_size_callback);
 
 	int version = gladLoadGLLoader(GLADloadproc(glfwGetProcAddress));
 	if (version == 0) {
