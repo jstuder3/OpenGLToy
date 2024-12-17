@@ -13,6 +13,9 @@ struct RenderState
 
 	GLuint VAO;
 	GLuint VBO;
+
+	float lastMouseX;
+	float lastMouseY;
 };
 
 int initOpenGL(RenderState* renderState);

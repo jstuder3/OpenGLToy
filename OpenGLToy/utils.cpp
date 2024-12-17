@@ -6,19 +6,6 @@
 #include "utils.h"
 #include "inputHandling.h"
 
-static const char* vertex_shader_text =
-"#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-
-static const char* fragment_shader_text =
-"#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);}\n";
 
 void error_callback(int error, const char* description)
 {
@@ -28,7 +15,6 @@ void error_callback(int error, const char* description)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
-
 
 int initOpenGL(RenderState* renderState) {
 
@@ -116,7 +102,7 @@ void processInputs() {
 }
 
 void render(RenderState* renderState) {
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderState->shader->use();
 	glBindVertexArray(renderState->VAO);
@@ -128,6 +114,19 @@ void render(RenderState* renderState) {
 
 	GLint timeLocation = glGetUniformLocation(renderState->shader->getProgram(), "iTime");
 	glUniform1f(timeLocation, (float)glfwGetTime());
+
+	GLint mouseLocation = glGetUniformLocation(renderState->shader->getProgram(), "iMouse");
+	double x, y;
+	glfwGetCursorPos(renderState->window, &x, &y);
+	//std::cout << "X: " << x << ", Y: " << y << std::endl;
+
+	// only forward camera data if the mouse is inside the window
+	if (x < 0 || y < 0 || x > width || y > height) {
+		x = 0.5 * width;
+		y = 0.5 * height;
+	}
+
+	glUniform4f(mouseLocation, (float)x, (float)(height-y), 0.0f, 0.0f);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
