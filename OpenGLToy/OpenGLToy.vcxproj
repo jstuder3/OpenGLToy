@@ -148,6 +148,7 @@
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\README.md" />
     <None Include="shaders\pass_through_vertex_shader.vert" />
     <None Include="shaders\ray_marching_fragment_shader.frag" />
   </ItemGroup>

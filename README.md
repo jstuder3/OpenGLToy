@@ -10,6 +10,8 @@ You will need:
 
 For a guide on how to include both of these in Visual Studio, take a look [here](https://learnopengl.com/Getting-started/Creating-a-window)
 
+To run the project, open the .sln file in Visual Studio and build it. If you have the necessary dependencies, you should be able to run the project without any issues.
+
 ### What do I do?
 Similar to ShaderToy, you should only set the fragment shader. An example of a pretty ray marching shader is provided under `shader/ray_marching_fragment_shader.frag`. 
 
@@ -19,7 +21,7 @@ To change which shader is used, you can change the path [here](https://github.co
 The following input is provided, similar to Shadertoy:
 - `iResolution: vec2` containing the current view resolution in pixels.
 - `iTime: float` containing the time since the start of the program in seconds.
-- `iMouse: vec4` containing the current mouse xy positions in pixels (plus two currently unbound values which will contain click start positions later)
+- `iMouse: vec4` containing the current mouse xy positions in pixels (indices 0 and 1), and the location where the mouse button was located when the current click&drag started (zero if not clicked, indices 2 and 3).
 
 Once you can run the project, you should see something like the gif below, and then you can start living out your wildest Shader dreams.
 
