@@ -137,13 +137,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
+    <ClCompile Include="inputManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="inputHandling.h" />
+    <ClInclude Include="inputManager.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>

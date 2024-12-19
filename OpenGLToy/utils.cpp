@@ -4,15 +4,15 @@
 #include <sstream>
 
 #include "utils.h"
-#include "inputHandling.h"
+#include "inputManager.h"
 
 
-void error_callback(int error, const char* description)
+void errorCallback(int error, const char* description)
 {
 	fprintf(stderr, "Error: %s\n", description);
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
@@ -23,7 +23,7 @@ int initOpenGL(RenderState* renderState) {
 		// Initialization failed
 	}
 
-	glfwSetErrorCallback(error_callback);
+	glfwSetErrorCallback(errorCallback);
 	renderState->window = glfwCreateWindow(800, 600, "OpenGLToy", NULL, NULL);
 	if (!renderState->window)
 	{
@@ -38,8 +38,20 @@ int initOpenGL(RenderState* renderState) {
 
 	glfwMakeContextCurrent(renderState->window);
 
-	glfwSetKeyCallback(renderState->window, key_callback);
-	glfwSetFramebufferSizeCallback(renderState->window, framebuffer_size_callback);
+	renderState->inputManager = std::make_shared<InputManager>();
+
+	// bind the input manager to the window so we can access it in the input callbacks
+	glfwSetWindowUserPointer(renderState->window, renderState->inputManager.get());
+
+	// bind key inputs
+	glfwSetKeyCallback(renderState->window, InputManager::staticKeyCallback);
+
+	// bind mouse inputs
+	glfwSetMouseButtonCallback(renderState->window, InputManager::staticMouseButtonCallback);
+	glfwSetCursorPosCallback(renderState->window, InputManager::staticMousePositionCallback);
+
+	// bind framebuffer size callback
+	glfwSetFramebufferSizeCallback(renderState->window, framebufferSizeCallback);
 
 	int version = gladLoadGLLoader(GLADloadproc(glfwGetProcAddress));
 	if (version == 0) {
@@ -79,7 +91,6 @@ int initData(RenderState* renderState) {
 	glEnableVertexAttribArray(0);
 
 	std::shared_ptr<Shader> shader = std::make_shared<Shader>("shaders/pass_through_vertex_shader.vert", "shaders/ray_marching_fragment_shader.frag");
-
 	// transfer all values to the render state for later use
 	renderState->VAO = VAO;
 	renderState->VBO = VBO;
@@ -91,14 +102,14 @@ int initData(RenderState* renderState) {
 void renderLoop(RenderState* renderState) {
 	while (!glfwWindowShouldClose(renderState->window))
 	{
-		processInputs();
+		processInputs(renderState);
 		render(renderState);
 		glfwSwapBuffers(renderState->window);
 	}
 }
 
-void processInputs() {
-	glfwPollEvents();
+void processInputs(RenderState* renderState) {
+	renderState->inputManager->update(renderState->window);
 }
 
 void render(RenderState* renderState) {
@@ -115,18 +126,12 @@ void render(RenderState* renderState) {
 	GLint timeLocation = glGetUniformLocation(renderState->shader->getProgram(), "iTime");
 	glUniform1f(timeLocation, (float)glfwGetTime());
 
+	// stuff for mouse
 	GLint mouseLocation = glGetUniformLocation(renderState->shader->getProgram(), "iMouse");
-	double x, y;
-	glfwGetCursorPos(renderState->window, &x, &y);
-	//std::cout << "X: " << x << ", Y: " << y << std::endl;
-
-	// only forward camera data if the mouse is inside the window
-	if (x < 0 || y < 0 || x > width || y > height) {
-		x = 0.5 * width;
-		y = 0.5 * height;
-	}
-
-	glUniform4f(mouseLocation, (float)x, (float)(height-y), 0.0f, 0.0f);
+	double* mouseState = renderState->inputManager->getMouseState();
+	glUniform4f(mouseLocation, (float)mouseState[0], (float)mouseState[1], (float)mouseState[2], (float)mouseState[3]);
+	
+	std::cout << "Mouse: " << mouseState[0] << " " << mouseState[1] << " " << mouseState[2] << " " << mouseState[3] << std::endl;
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }

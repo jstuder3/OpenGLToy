@@ -76,11 +76,13 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     float t = 0.0; // total distance travelled
 
 //     camera
-     ro = rot3D(ro, vec3(1.0, 0.0, 0.0), -m.y);
-     rd = rot3D(rd, vec3(1.0, 0.0, 0.0), -m.y);
+    if(iMouse.z != 0){
+         ro = rot3D(ro, vec3(1.0, 0.0, 0.0), m.y);
+         rd = rot3D(rd, vec3(1.0, 0.0, 0.0), m.y);
 
-     ro = rot3D(ro, vec3(0.0, 1.0, 0.0), m.x);
-     rd = rot3D(rd, vec3(0.0, 1.0, 0.0), m.x);
+         ro = rot3D(ro, vec3(0.0, 1.0, 0.0), m.x);
+         rd = rot3D(rd, vec3(0.0, 1.0, 0.0), m.x);
+     }
 
     // Raymarching
     int i;
