@@ -1,6 +1,6 @@
 # Overview
 ### What is this?
-A simple skeleton that mimics the functionality of ShaderToy, but not in the browser!
+A simple framework that mimics the functionality of the ShaderToy website, but locally!
 
 ### What do I need to run this?
 You will need:
