@@ -161,3 +161,8 @@ std::string loadFile(const char* path) {
 	}
 
 }
+
+bool isFileGood(const char* path) {
+	std::ifstream file(path);
+	return file.good();
+}

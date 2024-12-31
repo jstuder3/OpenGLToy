@@ -28,4 +28,6 @@ void renderLoop(RenderState* renderState);
 void terminate(RenderState* renderState);
 
 int genBuffer();
+
 std::string loadFile(const char* path);
+bool isFileGood(const char* path);

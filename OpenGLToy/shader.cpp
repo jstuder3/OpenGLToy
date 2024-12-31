@@ -1,21 +1,31 @@
 #include <iostream>
 
 #include "shader.h"
-
 #include "utils.h"
-
 
 Shader::Shader(const char* vertexShaderSource, const char* fragmentShaderSource)
 {
-	GLuint vertexShader = genShader(vertexShaderSource, GL_VERTEX_SHADER);
-	GLuint fragmentShader = genShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
+	this->vertexShaderSource = const_cast<char*>(vertexShaderSource);
+	this->fragmentShaderSource = const_cast<char*>(fragmentShaderSource);
 
-	shaderProgram = genProgram(vertexShader, fragmentShader);
+	lastFragmentShaderWriteTime = fs::last_write_time(fragmentShaderSource);
+
+	lastShaderWriteCheck = std::chrono::high_resolution_clock::now();
+	constructShader();
+
+
 }
 
 Shader::~Shader()
 {
 	glDeleteProgram(shaderProgram);
+}
+
+void Shader::constructShader() {
+	GLuint vertexShader = genShader(vertexShaderSource, GL_VERTEX_SHADER);
+	GLuint fragmentShader = genShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
+
+	shaderProgram = genProgram(vertexShader, fragmentShader);
 }
 
 int Shader::genShader(const char* shaderSource, GLenum shaderType)
@@ -68,6 +78,22 @@ int Shader::genProgram(int vertexShader, int fragmentShader) {
 }
 
 void Shader::use() {
+	// for hot-reloading: check if the fragment shader has been changed. recompile it if necessary.
+	if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastShaderWriteCheck).count() >= 250) {
+
+		// wait for file to be ready
+		while (!isFileGood(fragmentShaderSource));
+
+		if (lastFragmentShaderWriteTime != fs::last_write_time(fragmentShaderSource)) {
+			glUseProgram(0);
+			glDeleteProgram(shaderProgram);
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			constructShader();
+		}
+
+		lastShaderWriteCheck = std::chrono::high_resolution_clock::now();
+	}
+
 	glUseProgram(shaderProgram);
 }
 
